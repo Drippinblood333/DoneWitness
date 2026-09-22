@@ -24,6 +24,11 @@ All notable user-visible changes to DoneWitness are documented here. The format 
   receipt schemas, evidence integrity checks, exit codes, and machine schema remain.
 - No new runtime dependencies or hosted services.
 
+### Fixed
+
+- Application-startup interrupts now finalize an UNKNOWN receipt after the startup
+  adapter's cleanup, including the Docker network-creation interruption window.
+
 ## [0.1.0] - 2026-09-03
 
 ### Added
