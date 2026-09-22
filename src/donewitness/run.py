@@ -321,6 +321,10 @@ def verify_local_application(
                     command,
                     max_log_bytes=store.limits.max_text_artifact_size_bytes,
                 )
+        except KeyboardInterrupt:
+            interrupted = True
+            operational_reason = _INTERRUPTED_REASON
+            limitations.append("Verification was interrupted during application startup.")
         except ApplicationStartError as error:
             operational_reason = (
                 "Application executable could not start"

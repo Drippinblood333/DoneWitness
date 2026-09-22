@@ -63,7 +63,9 @@ def test_v3_assertions_retry_classify_and_preserve_private_evidence(
     )
     store = EvidenceStore(tmp_path)
     executions = BrowserVerifier(local_app_url).verify_with_evidence(plan, evidence_store=store)
-    assert [result.verdict for result in executions] == [expected for _, expected in assertions]
+    assert [result.verdict for result in executions] == [
+        expected for _, expected in assertions
+    ], [(result.criterion_id, result.verdict.value, result.reason) for result in executions]
     assert all(result.failed_step_index == 3 for result in executions[6:])
     assert executions[6].reason == "assert_text failed at step 4 for selector '#message'"
     manifest = store.build_manifest()
