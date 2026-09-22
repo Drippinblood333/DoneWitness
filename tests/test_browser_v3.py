@@ -28,6 +28,11 @@ def test_v3_assertions_retry_classify_and_preserve_private_evidence(
         ({"type": "assert_count", "selector": "input", "count": 2}, Verdict.FAIL),
         ({"type": "assert_hidden", "selector": "#name"}, Verdict.FAIL),
         ({"type": "assert_text", "selector": "[", "text": "anything"}, Verdict.UNKNOWN),
+        ({"type": "assert_count", "selector": "[", "count": 1}, Verdict.UNKNOWN),
+        ({"type": "assert_hidden", "selector": "["}, Verdict.UNKNOWN),
+        ({"type": "assert_visible", "selector": "["}, Verdict.UNKNOWN),
+        ({"type": "assert_value", "selector": "#message", "value": "x"}, Verdict.UNKNOWN),
+        ({"type": "assert_text", "selector": "p", "text": "x"}, Verdict.UNKNOWN),
     ]
     criteria = []
     for index, (assertion, _) in enumerate(assertions):

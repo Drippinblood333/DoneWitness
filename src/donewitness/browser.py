@@ -32,6 +32,7 @@ from donewitness.browser_plan_v3 import (
     AssertHiddenStep,
     AssertTextStep,
     AssertValueStep,
+    BrowserAcceptanceCriterionV3,
     ExecutableBrowserCriterion,
     ExecutableBrowserPlan,
 )
@@ -486,6 +487,23 @@ class BrowserVerifier:
                     else:
                         assertion.to_be_hidden(timeout=timeout_ms)
                 except AssertionError:
+                    if isinstance(criterion, BrowserAcceptanceCriterionV3):
+                        # Playwright also wraps selector/strictness errors in AssertionError.
+                        # Diagnose only failed v3 checks via public APIs; do not retain values
+                        # or depend on private exception-message formats. Legacy v2 is unchanged.
+                        try:
+                            locator = page.locator(step.selector)
+                            matches = locator.count()
+                            if not isinstance(step, AssertCountStep) and matches > 1:
+                                return self._unknown_step(
+                                    criterion.id, step.type, index, step.selector,
+                                )
+                            if isinstance(step, AssertValueStep) and matches == 1:
+                                locator.input_value(timeout=1)
+                        except Error:
+                            return self._unknown_step(
+                                criterion.id, step.type, index, step.selector,
+                            )
                     return BrowserExecutionResult(
                         criterion_id=criterion.id,
                         verdict=Verdict.FAIL,
