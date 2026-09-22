@@ -6,6 +6,8 @@ All notable user-visible changes to DoneWitness are documented here. The format 
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-23
+
 ### Added
 
 - Plan v3 with explicit text, input-value, count, and hidden/absent assertions.
@@ -20,7 +22,7 @@ All notable user-visible changes to DoneWitness are documented here. The format 
 
 ### Compatibility
 
-- v0.2.0 candidate: new assertions require Plan v3. Plan v1/v2 contracts and digests,
+- New assertions require Plan v3. Plan v1/v2 contracts and digests,
   receipt schemas, evidence integrity checks, exit codes, and machine schema remain.
 - No new runtime dependencies or hosted services.
 

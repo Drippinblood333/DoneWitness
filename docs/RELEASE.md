@@ -1,6 +1,8 @@
 # Release runbook
 
-Current candidate: **v0.2.0**. Public v0.1.0 was observed on GitHub on 2026-09-22.
+Release target: **v0.2.0**. The maintainer explicitly authorized publishing this
+version and improving its GitHub presentation on 2026-09-23 (Asia/Shanghai).
+Public v0.1.0 was observed on GitHub on 2026-09-22.
 Repository configuration is not proof of current hosted permissions or publisher state.
 
 ## Candidate gates
