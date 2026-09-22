@@ -58,7 +58,9 @@ def test_expense_workflow_detects_business_faults(
     )
     receipt_path = run / "receipt.json"
     diagnostic = (
-        receipt_path.read_text(encoding="utf-8") if receipt_path.exists() else "No receipt persisted"
+        receipt_path.read_text(encoding="utf-8")
+        if receipt_path.exists()
+        else "No receipt persisted"
     )
     assert result.returncode == exit_code, result.stdout + result.stderr + diagnostic
     summary = json.loads(result.stdout)
