@@ -6,23 +6,12 @@ import argparse
 import sys
 from collections.abc import Sequence
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from donewitness import __version__
-from donewitness.browser import BaseURLValidationError
-from donewitness.browser_plan import BrowserVerificationPlan
-from donewitness.cli_result import build_verify_summary, render_verify_summary
-from donewitness.domain import Verdict
-from donewitness.inspection import (
-    InspectionInputError,
-    RunIntegrityError,
-    inspect_run_directory,
-)
-from donewitness.plan import PlanError, load_plan
-from donewitness.run import (
-    RunConfigurationError,
-    RunOperationalError,
-    verify_local_application,
-)
+
+if TYPE_CHECKING:
+    from donewitness.domain import Verdict
 
 EXIT_PASS = 0
 EXIT_FAIL = 1
@@ -58,7 +47,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
     verify_parser = subparsers.add_parser(
         "verify",
-        help="execute a Plan v2 against one managed local web application",
+        help="execute a Plan v2/v3 against one managed local web application",
     )
     verify_parser.add_argument(
         "--plan",
@@ -119,6 +108,10 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         help="existing run directory containing a supported receipt",
     )
+    validate_parser = subparsers.add_parser(
+        "validate", help="check a plan and its digest without starting an application",
+    )
+    validate_parser.add_argument("--plan", required=True, type=Path)
     return parser
 
 
@@ -128,14 +121,28 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "verify":
+        from donewitness.browser import BaseURLValidationError
+        from donewitness.browser_plan import BrowserVerificationPlan
+        from donewitness.browser_plan_v3 import BrowserVerificationPlanV3
+        from donewitness.cli_result import build_verify_summary, render_verify_summary
+        from donewitness.inspection import (
+            RunIntegrityError,
+        )
+        from donewitness.plan import PlanError, load_plan
+        from donewitness.run import (
+            RunConfigurationError,
+            RunOperationalError,
+            verify_local_application,
+        )
+
         try:
             invocation_root = Path.cwd().resolve()
             plan_path = _resolve_from_invocation(args.plan, invocation_root)
             run_dir = _resolve_from_invocation(args.run_dir, invocation_root)
             plan = load_plan(plan_path)
-            if not isinstance(plan, BrowserVerificationPlan):
+            if not isinstance(plan, (BrowserVerificationPlan, BrowserVerificationPlanV3)):
                 raise RunConfigurationError(
-                    "executable local verification currently requires Plan v2"
+                    "executable local verification currently requires Plan v2 or v3"
                 )
             outcome = verify_local_application(
                 plan=plan,
@@ -183,7 +190,30 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"Evidence manifest: {outcome.evidence_manifest_path}")
         return exit_code
 
+    if args.command == "validate":
+        from donewitness.plan import PlanError, load_plan, plan_digest
+
+        try:
+            plan = load_plan(args.plan)
+        except PlanError as error:
+            print(f"donewitness: error: {error}", file=sys.stderr)
+            return EXIT_USAGE
+        print(f"Plan: v{plan.schema_version}")
+        print(f"Criteria: {len(plan.criteria)}")
+        print(f"Digest: {plan_digest(plan)}")
+        if plan.schema_version == 1:
+            print("Criteria-only plan; execution requires Plan v2 or v3.")
+        else:
+            print("Format: valid (application behavior has not been verified)")
+        return EXIT_SUCCESS
+
     if args.command == "inspect":
+        from donewitness.inspection import (
+            InspectionInputError,
+            RunIntegrityError,
+            inspect_run_directory,
+        )
+
         try:
             inspection = inspect_run_directory(args.run_dir)
         except InspectionInputError as error:
@@ -210,6 +240,8 @@ def _resolve_from_invocation(path: Path, invocation_root: Path) -> Path:
 
 
 def _verification_exit_code(verdict: Verdict) -> int:
+    from donewitness.domain import Verdict
+
     if verdict is Verdict.PASS:
         return EXIT_PASS
     if verdict is Verdict.FAIL:

@@ -1,4 +1,4 @@
-"""Deterministic Chromium execution for Verification Plan v2 browser procedures."""
+"""Deterministic Chromium execution for Plan v2/v3 browser procedures."""
 
 from __future__ import annotations
 
@@ -23,11 +23,17 @@ from playwright.sync_api import (
 
 from donewitness.browser_plan import (
     AssertVisibleStep,
-    BrowserAcceptanceCriterion,
-    BrowserVerificationPlan,
     ClickStep,
     FillStep,
     NavigateStep,
+)
+from donewitness.browser_plan_v3 import (
+    AssertCountStep,
+    AssertHiddenStep,
+    AssertTextStep,
+    AssertValueStep,
+    ExecutableBrowserCriterion,
+    ExecutableBrowserPlan,
 )
 from donewitness.domain import Verdict
 from donewitness.evidence import EvidenceError, EvidenceKind, EvidenceStore
@@ -97,18 +103,18 @@ def _validated_loopback_origin(base_url: str) -> str:
 
 
 class BrowserVerifier:
-    """Run a v2 plan headlessly with one browser and isolated criterion contexts."""
+    """Run an executable plan with one browser and isolated criterion contexts."""
 
     def __init__(self, base_url: str) -> None:
         self._base_origin = _validated_loopback_origin(base_url)
 
-    def verify(self, plan: BrowserVerificationPlan) -> tuple[BrowserExecutionResult, ...]:
+    def verify(self, plan: ExecutableBrowserPlan) -> tuple[BrowserExecutionResult, ...]:
         """Preserve the M4 in-memory execution path without filesystem requirements."""
         return self._verify(plan, evidence_store=None, config=None)
 
     def verify_with_evidence(
         self,
-        plan: BrowserVerificationPlan,
+        plan: ExecutableBrowserPlan,
         *,
         evidence_store: EvidenceStore,
         config: BrowserEvidenceConfig | None = None,
@@ -122,7 +128,7 @@ class BrowserVerifier:
 
     def _verify(
         self,
-        plan: BrowserVerificationPlan,
+        plan: ExecutableBrowserPlan,
         *,
         evidence_store: EvidenceStore | None,
         config: BrowserEvidenceConfig | None,
@@ -176,7 +182,7 @@ class BrowserVerifier:
 
     @staticmethod
     def _all_unknown(
-        plan: BrowserVerificationPlan,
+        plan: ExecutableBrowserPlan,
         reason: str,
     ) -> tuple[BrowserExecutionResult, ...]:
         return tuple(
@@ -191,7 +197,7 @@ class BrowserVerifier:
     def _execute_criterion(
         self,
         browser: Browser,
-        criterion: BrowserAcceptanceCriterion,
+        criterion: ExecutableBrowserCriterion,
         *,
         evidence_store: EvidenceStore | None,
         config: BrowserEvidenceConfig | None,
@@ -458,26 +464,39 @@ class BrowserVerifier:
     def _execute_steps(
         self,
         page: Page,
-        criterion: BrowserAcceptanceCriterion,
+        criterion: ExecutableBrowserCriterion,
     ) -> BrowserExecutionResult:
         timeout_ms = criterion.procedure.timeout_ms
         for index, step in enumerate(criterion.procedure.steps):
             step_number = index + 1
-            if isinstance(step, AssertVisibleStep):
+            if isinstance(step, (
+                AssertVisibleStep, AssertTextStep, AssertValueStep,
+                AssertCountStep, AssertHiddenStep,
+            )):
                 try:
-                    expect(page.locator(step.selector)).to_be_visible(timeout=timeout_ms)
+                    assertion = expect(page.locator(step.selector))
+                    if isinstance(step, AssertVisibleStep):
+                        assertion.to_be_visible(timeout=timeout_ms)
+                    elif isinstance(step, AssertTextStep):
+                        assertion.to_have_text(step.text, timeout=timeout_ms)
+                    elif isinstance(step, AssertValueStep):
+                        assertion.to_have_value(step.value, timeout=timeout_ms)
+                    elif isinstance(step, AssertCountStep):
+                        assertion.to_have_count(step.count, timeout=timeout_ms)
+                    else:
+                        assertion.to_be_hidden(timeout=timeout_ms)
                 except AssertionError:
                     return BrowserExecutionResult(
                         criterion_id=criterion.id,
                         verdict=Verdict.FAIL,
                         reason=(
-                            f"assert_visible failed at step {step_number} "
+                            f"{step.type} failed at step {step_number} "
                             f"for selector {step.selector!r}"
                         ),
                         failed_step_index=index,
                     )
                 except Error:
-                    return self._unknown_step(criterion.id, "assert_visible", index, step.selector)
+                    return self._unknown_step(criterion.id, step.type, index, step.selector)
                 continue
 
             try:

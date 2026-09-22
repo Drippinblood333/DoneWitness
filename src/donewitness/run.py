@@ -20,7 +20,7 @@ from donewitness.application import (
     endpoint_accepts_connection,
 )
 from donewitness.browser import BrowserExecutionResult, BrowserVerifier
-from donewitness.browser_plan import BrowserVerificationPlan
+from donewitness.browser_plan_v3 import ExecutableBrowserPlan
 from donewitness.domain import Verdict, VerificationResult
 from donewitness.evidence import (
     EvidenceError,
@@ -117,7 +117,7 @@ _INTERRUPTED_REASON = "Verification was interrupted"
 
 def build_browser_verification_results(
     *,
-    plan: BrowserVerificationPlan,
+    plan: ExecutableBrowserPlan,
     executions: tuple[BrowserExecutionResult, ...],
     manifest: EvidenceManifest,
     evidence_root: Path,
@@ -191,7 +191,7 @@ def build_browser_verification_results(
 
 def build_operational_unknown_results(
     *,
-    plan: BrowserVerificationPlan,
+    plan: ExecutableBrowserPlan,
     reason: str,
     evidence_refs: Sequence[str] = (),
 ) -> tuple[VerificationResult, ...]:
@@ -210,7 +210,7 @@ def build_operational_unknown_results(
 
 def verify_local_application(
     *,
-    plan: BrowserVerificationPlan,
+    plan: ExecutableBrowserPlan,
     base_url: str,
     run_dir: Path,
     app_command: Sequence[str],

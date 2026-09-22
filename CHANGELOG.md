@@ -6,6 +6,24 @@ All notable user-visible changes to DoneWitness are documented here. The format 
 
 ## [Unreleased]
 
+### Added
+
+- Plan v3 with explicit text, input-value, count, and hidden/absent assertions.
+- Offline `validate --plan` command showing schema, criteria count, and digest.
+- Expense-entry example with wrong-total and fake-save fault injection under one plan.
+
+### Changed
+
+- Defer execution dependencies for lightweight help/version startup; benchmark script
+  compares fresh processes against the released Git revision on the same interpreter.
+- Shorter README with detailed CLI behavior preserved in `docs/CLI_REFERENCE.md`.
+
+### Compatibility
+
+- v0.2.0 candidate: new assertions require Plan v3. Plan v1/v2 contracts and digests,
+  receipt schemas, evidence integrity checks, exit codes, and machine schema remain.
+- No new runtime dependencies or hosted services.
+
 ## [0.1.0] - 2026-09-03
 
 ### Added
