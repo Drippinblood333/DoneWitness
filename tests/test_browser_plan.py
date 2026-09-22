@@ -82,9 +82,9 @@ def test_v2_digest_covers_the_entire_procedure(tmp_path: Path) -> None:
 
 def test_load_plan_rejects_unsupported_schema_version(tmp_path: Path) -> None:
     path = tmp_path / "future.json"
-    write_json(path, {"schema_version": 3, "task": "Task", "criteria": []})
+    write_json(path, {"schema_version": 4, "task": "Task", "criteria": []})
 
-    with pytest.raises(PlanValidationError, match="unsupported schema version: 3"):
+    with pytest.raises(PlanValidationError, match="unsupported schema version: 4"):
         load_plan(path)
 
 

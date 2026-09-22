@@ -121,7 +121,7 @@ def test_verify_requires_all_run_inputs(capsys: CaptureFixture[str]) -> None:
     ("content", "expected_error"),
     [
         ("{", "malformed JSON at line 1"),
-        (json.dumps({**VALID_V2_PLAN, "schema_version": 3}), "schema_version"),
+        (json.dumps({**VALID_V2_PLAN, "schema_version": 4}), "schema_version"),
     ],
 )
 def test_invalid_plan_never_starts_application(

@@ -1,4 +1,4 @@
-"""Narrow assertions for the proposed public v0.1 release contract."""
+"""Narrow assertions for the proposed public v0.2 release contract."""
 
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ RELEASE_ACTION_PINS = {
 }
 
 
-def test_v0_1_versions_and_exit_codes_are_stable() -> None:
-    assert __version__ == "0.1.0"
+def test_v0_2_versions_and_exit_codes_are_stable() -> None:
+    assert __version__ == "0.2.0"
     assert OUTPUT_SCHEMA_VERSION == 1
     assert (EXIT_PASS, EXIT_FAIL, EXIT_USAGE, EXIT_UNKNOWN) == (0, 1, 2, 3)
 
@@ -76,7 +76,7 @@ def test_public_identity_is_single_and_old_packages_are_absent() -> None:
         (REPOSITORY_ROOT / "pyproject.toml").read_text(encoding="utf-8")
     )
 
-    assert __version__ == "0.1.0"
+    assert __version__ == "0.2.0"
     assert build_parser().prog == "donewitness"
     assert pyproject["project"]["name"] == "donewitness"
     assert pyproject["project"]["scripts"] == {
@@ -99,7 +99,7 @@ def test_release_facing_install_instructions_use_the_public_distribution() -> No
         REPOSITORY_ROOT / "docs" / "CI.md",
         REPOSITORY_ROOT / "docs" / "PACKAGING.md",
         REPOSITORY_ROOT / "docs" / "RELEASE.md",
-        REPOSITORY_ROOT / "docs" / "releases" / "v0.1.0.md",
+        REPOSITORY_ROOT / "docs" / "releases" / "v0.2.0.md",
     ]
     for path in release_files:
         content = path.read_text(encoding="utf-8")
