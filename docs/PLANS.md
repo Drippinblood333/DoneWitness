@@ -48,6 +48,12 @@ retains v2's **per-step** 100–30,000 ms bound (default 5,000), not a whole-pla
 deadline. Assertions auto-retry. Contradictions are FAIL; selector/execution errors
 are UNKNOWN. Unsupported syntax is rejected before application startup.
 
+On a failed v3 assertion, the executor checks locator usability through public
+Playwright APIs: invalid selectors, ambiguous single-element matches, and value
+checks on non-input elements are UNKNOWN. A value diagnostic can use one additional
+operation bounded by the same timeout; the setting is not a wall-clock step budget.
+Successful assertions incur no extra diagnostic reads. Legacy v2 behavior is retained.
+
 Each criterion gets a fresh browser context. Persistence checks must remain within
 one criterion. See the [expense plan](../examples/expenses.plan.json).
 

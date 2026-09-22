@@ -499,7 +499,7 @@ class BrowserVerifier:
                                     criterion.id, step.type, index, step.selector,
                                 )
                             if isinstance(step, AssertValueStep) and matches == 1:
-                                locator.input_value(timeout=1)
+                                locator.input_value(timeout=timeout_ms)
                         except Error:
                             return self._unknown_step(
                                 criterion.id, step.type, index, step.selector,
