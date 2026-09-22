@@ -56,10 +56,14 @@ def test_expense_workflow_detects_business_faults(
         timeout=45,
         check=False,
     )
-    assert result.returncode == exit_code, result.stdout + result.stderr
+    receipt_path = run / "receipt.json"
+    diagnostic = (
+        receipt_path.read_text(encoding="utf-8") if receipt_path.exists() else "No receipt persisted"
+    )
+    assert result.returncode == exit_code, result.stdout + result.stderr + diagnostic
     summary = json.loads(result.stdout)
     assert summary["exit_code"] == exit_code
-    receipt = json.loads((run / "receipt.json").read_text(encoding="utf-8"))
+    receipt = json.loads(diagnostic)
     assert receipt["schema_version"] == 4
     assert [criterion["verdict"] for criterion in receipt["criteria"]] == verdicts
     inspected = subprocess.run(
