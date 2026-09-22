@@ -10,9 +10,12 @@ from typing import Any
 from pydantic import ValidationError
 
 from donewitness.browser_plan import BrowserVerificationPlan
+from donewitness.browser_plan_v3 import BrowserVerificationPlanV3
 from donewitness.domain import VerificationPlan
 
-type SupportedVerificationPlan = VerificationPlan | BrowserVerificationPlan
+type SupportedVerificationPlan = (
+    VerificationPlan | BrowserVerificationPlan | BrowserVerificationPlanV3
+)
 
 
 class PlanError(Exception):
@@ -80,14 +83,15 @@ def load_plan(path: Path) -> SupportedVerificationPlan:
         raise PlanValidationError("schema_version: Field required")
 
     schema_version = payload["schema_version"]
-    if type(schema_version) is not int or schema_version not in {1, 2}:
-        raise PlanValidationError(
-            f"schema_version: unsupported schema version: {schema_version!r}"
-        )
+    if type(schema_version) is not int or schema_version not in {1, 2, 3}:
+        raise PlanValidationError(f"schema_version: unsupported schema version: {schema_version!r}")
 
-    model = VerificationPlan if schema_version == 1 else BrowserVerificationPlan
     try:
-        return model.model_validate_json(content)
+        if schema_version == 1:
+            return VerificationPlan.model_validate_json(content)
+        if schema_version == 2:
+            return BrowserVerificationPlan.model_validate_json(content)
+        return BrowserVerificationPlanV3.model_validate_json(content)
     except ValidationError as error:
         raise PlanValidationError(_format_validation_error(error)) from error
 

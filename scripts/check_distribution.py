@@ -16,7 +16,7 @@ EXPECTED_DISTRIBUTION_NAME = "donewitness"
 EXPECTED_FILENAME_STEM = "donewitness"
 EXPECTED_IMPORT_PACKAGE = "donewitness"
 FORBIDDEN_IMPORT_PACKAGES = ("agentverify", "agentverify_evidence")
-EXPECTED_VERSION = "0.1.0"
+EXPECTED_VERSION = "0.2.0"
 EXPECTED_REQUIRES_PYTHON_PARTS = frozenset({">=3.12", "<3.15"})
 EXPECTED_CONSOLE_SCRIPT = "donewitness.cli:main"
 EXPECTED_LICENSE_EXPRESSION = "Apache-2.0"

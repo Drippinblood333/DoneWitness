@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 EXPECTED_DISTRIBUTION_NAME = "donewitness"
-EXPECTED_VERSION = "0.1.0"
+EXPECTED_VERSION = "0.2.0"
 EXPECTED_VERSION_OUTPUT = f"DoneWitness {EXPECTED_VERSION}"
 EXPECTED_REQUIRES_PYTHON_PARTS = frozenset({">=3.12", "<3.15"})
 
@@ -168,6 +168,15 @@ def smoke_distribution(artifact: Path, *, cli_only: bool) -> None:
         print(f"Installed console scripts: {probe[4]}")
         print("Old import namespaces absent: agentverify, agentverify_evidence")
         print("pip check: OK")
+        plan_path = owned_root / "expenses.plan.json"
+        shutil.copyfile(repository / "examples/expenses.plan.json", plan_path)
+        validation = _run(
+            [str(donewitness), "validate", "--plan", str(plan_path)],
+            cwd=owned_root, timeout=30,
+        )
+        if "Plan: v3" not in validation.stdout or "Criteria: 3" not in validation.stdout:
+            raise RuntimeError(f"unexpected validation output: {validation.stdout!r}")
+        print("Plan v3 offline validation: OK")
         if cli_only:
             print("CLI smoke: OK")
             return
@@ -237,6 +246,33 @@ def smoke_distribution(artifact: Path, *, cli_only: bool) -> None:
         print("Receipt schema: 4")
         print("Verification: PASS")
         print("Inspect: Integrity: OK")
+
+        for filename in ("expenses.plan.json", "expenses_app.py"):
+            shutil.copyfile(repository / "examples" / filename, workspace / filename)
+        for fault, expected_exit, expected_verdicts in (
+            ("none", 0, ["PASS", "PASS", "PASS"]),
+            ("wrong-total", 1, ["PASS", "FAIL", "PASS"]),
+            ("fake-save", 1, ["PASS", "PASS", "FAIL"]),
+        ):
+            expense_run = workspace / f"expenses-{fault}"
+            expense_port = _unused_tcp_port()
+            _run([
+                str(donewitness), "verify", "--plan", "expenses.plan.json",
+                "--base-url", f"http://127.0.0.1:{expense_port}",
+                "--run-dir", str(expense_run), "--output-format", "json",
+                "--app-command", str(python), "expenses_app.py",
+                "--port", str(expense_port), "--fault", fault,
+            ], cwd=workspace, timeout=120, expected_exit=expected_exit)
+            receipt = json.loads((expense_run / "receipt.json").read_text(encoding="utf-8"))
+            if [item["verdict"] for item in receipt["criteria"]] != expected_verdicts:
+                raise RuntimeError(f"unexpected expense verdicts for {fault}")
+            inspected = _run(
+                [str(donewitness), "inspect", "--run-dir", str(expense_run)],
+                cwd=workspace, timeout=30,
+            )
+            if "Integrity: OK" not in inspected.stdout:
+                raise RuntimeError(f"expense bundle integrity failed for {fault}")
+            print(f"Expense {fault}: {expected_verdicts}; Integrity: OK")
 
 
 def main() -> int:

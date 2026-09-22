@@ -4,6 +4,7 @@
 
 | Version | Support |
 | --- | --- |
+| 0.2.x | Supported |
 | 0.1.x | Supported |
 | Older or unreleased development snapshots | Best effort / unsupported |
 

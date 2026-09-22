@@ -1,5 +1,12 @@
 # v0.1 Architecture
 
+The v0.2 extension keeps these boundaries and receipt/evidence schemas. Explicit
+Plan v3 models in `browser_plan_v3.py` add four business-state assertions to the
+same executor. Legacy models remain unchanged. CLI dependencies load only for the
+selected command, so help/version need only stdlib and package metadata, and offline
+validation/inspection do not import Playwright. No verifier registry or plugin
+abstraction is introduced. See [PLANS.md](PLANS.md).
+
 ## Architectural goal
 
 The smallest useful DoneWitness system is a local CLI that loads a frozen verification plan, coordinates deterministic verifiers, stores bounded evidence on disk, and emits a proof receipt. The architecture should make incorrect success difficult: domain verdict rules remain explicit, verifier failures remain visible, and no builder-specific SDK participates in the core.

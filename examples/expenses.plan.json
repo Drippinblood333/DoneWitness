@@ -1,0 +1,151 @@
+{
+  "schema_version": 3,
+  "task": "Expense entry: validation, totals, and browser persistence",
+  "criteria": [
+    {
+      "id": "AC-VALIDATION",
+      "description": "Empty input is rejected without adding an expense",
+      "procedure": {
+        "type": "browser",
+        "timeout_ms": 2000,
+        "steps": [
+          {
+            "type": "navigate",
+            "path": "/"
+          },
+          {
+            "type": "click",
+            "selector": "#save"
+          },
+          {
+            "type": "assert_text",
+            "selector": "#error",
+            "text": "Description and positive amount required"
+          },
+          {
+            "type": "assert_visible",
+            "selector": "#error"
+          },
+          {
+            "type": "assert_count",
+            "selector": "#expenses li",
+            "count": 0
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-TOTAL",
+      "description": "Two expenses total 20.00 and the form is cleared",
+      "procedure": {
+        "type": "browser",
+        "timeout_ms": 2000,
+        "steps": [
+          {
+            "type": "navigate",
+            "path": "/"
+          },
+          {
+            "type": "fill",
+            "selector": "#description",
+            "value": "Lunch"
+          },
+          {
+            "type": "fill",
+            "selector": "#amount",
+            "value": "12.50"
+          },
+          {
+            "type": "click",
+            "selector": "#save"
+          },
+          {
+            "type": "fill",
+            "selector": "#description",
+            "value": "Travel"
+          },
+          {
+            "type": "fill",
+            "selector": "#amount",
+            "value": "7.50"
+          },
+          {
+            "type": "click",
+            "selector": "#save"
+          },
+          {
+            "type": "assert_text",
+            "selector": "#total",
+            "text": "20.00"
+          },
+          {
+            "type": "assert_count",
+            "selector": "#expenses li",
+            "count": 2
+          },
+          {
+            "type": "assert_value",
+            "selector": "#description",
+            "value": ""
+          },
+          {
+            "type": "assert_value",
+            "selector": "#amount",
+            "value": ""
+          },
+          {
+            "type": "assert_hidden",
+            "selector": "#error"
+          }
+        ]
+      }
+    },
+    {
+      "id": "AC-PERSISTENCE",
+      "description": "A saved expense survives page navigation in the same browser context",
+      "procedure": {
+        "type": "browser",
+        "timeout_ms": 2000,
+        "steps": [
+          {
+            "type": "navigate",
+            "path": "/"
+          },
+          {
+            "type": "fill",
+            "selector": "#description",
+            "value": "Book"
+          },
+          {
+            "type": "fill",
+            "selector": "#amount",
+            "value": "9.99"
+          },
+          {
+            "type": "click",
+            "selector": "#save"
+          },
+          {
+            "type": "assert_text",
+            "selector": "#status",
+            "text": "Saved"
+          },
+          {
+            "type": "navigate",
+            "path": "/"
+          },
+          {
+            "type": "assert_count",
+            "selector": "#expenses li",
+            "count": 1
+          },
+          {
+            "type": "assert_text",
+            "selector": "#expenses li",
+            "text": "Book: 9.99"
+          }
+        ]
+      }
+    }
+  ]
+}

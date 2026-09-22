@@ -2,6 +2,11 @@
 
 ## Roadmap policy
 
+Current development targets **v0.2.0**. Its product decision, frozen acceptance
+criteria, performance measurement, and verification-asset change rationale are in
+[V0_2_PLAN.md](V0_2_PLAN.md). The milestones below describe the historical v0.1
+delivery; the M11 preparation status is not the current publication status.
+
 Each milestone adds one independently verifiable capability. Work from a later milestone must not be pulled forward merely to create extension points. Completion means the stated checks pass and the documented behavior matches the repository; it does not mean adjacent milestones have started.
 
 The sequence differs from the initial product sketch in one important way: AI-generated criteria and autonomous browser exploration move to **post-v0.1 experiments**. The public v0.1 should first prove that deterministic, user-reviewed verification and evidence receipts are useful. This reduces scope, keeps the product usable without provider credentials, and prevents probabilistic planning from weakening verdict trust.
