@@ -1,6 +1,6 @@
 # Compatibility
 
-The v0.2.0 candidate retains the contracts below and additionally loads/executes
+The v0.2.0 release retains the contracts below and additionally loads/executes
 Plan v3. New assertions are rejected in v2 plans. `validate --plan` checks supported
 plan formats offline; it does not verify application behavior. See [PLANS.md](PLANS.md)
 and [v0.2 evidence](releases/v0.2.0-evidence.md) for current qualification results.
