@@ -2,7 +2,8 @@
 
 ## Roadmap policy
 
-Current development targets **v0.2.0**. Its product decision, frozen acceptance
+Current public release: **v0.2.0**, published on 2026-09-23 (Asia/Shanghai).
+See the [publication record](releases/v0.2.0-publication.md). Its product decision, frozen acceptance
 criteria, performance measurement, and verification-asset change rationale are in
 [V0_2_PLAN.md](V0_2_PLAN.md). The milestones below describe the historical v0.1
 delivery; the M11 preparation status is not the current publication status.

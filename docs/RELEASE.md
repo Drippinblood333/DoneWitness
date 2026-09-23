@@ -1,6 +1,9 @@
 # Release runbook
 
-Release target: **v0.2.0**. The maintainer explicitly authorized publishing this
+Current public release: **v0.2.0**, published to GitHub and PyPI on 2026-09-23
+(Asia/Shanghai). See the [publication record](releases/v0.2.0-publication.md)
+for exact commit, workflow results, public artifact hashes, and provisioning limits.
+The maintainer explicitly authorized publishing this
 version and improving its GitHub presentation on 2026-09-23 (Asia/Shanghai).
 Public v0.1.0 was observed on GitHub on 2026-09-22.
 Repository configuration is not proof of current hosted permissions or publisher state.
